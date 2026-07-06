@@ -1,0 +1,63 @@
+{
+  "name": "@reactvision/react-viro-face-tracking",
+  "version": "1.0.0",
+  "description": "Front-camera (ARKit face-tracking) AR provider for @reactvision/react-viro. Keeps the TrueDepth API out of the core binary; opt in only when you need front-camera AR.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "plugin": "./plugin/build/withViroFaceTracking.js",
+  "author": "ReactVision",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReactVision/react-viro-face-tracking.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ReactVision/react-viro-face-tracking/issues"
+  },
+  "homepage": "https://github.com/ReactVision/react-viro-face-tracking#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "plugin/build",
+    "ios/ViroFaceTracking.h",
+    "ios/ViroFaceTracking.mm",
+    "ios/ViroReactFaceTracking.podspec",
+    "android/build.gradle",
+    "android/src",
+    "app.plugin.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "expo": {
+    "install": {
+      "exclude": []
+    }
+  },
+  "scripts": {
+    "build": "tsc && npm run build:plugin",
+    "build:plugin": "tsc -p plugin/tsconfig.json",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "react-native",
+    "ar",
+    "viro",
+    "arkit",
+    "face-tracking",
+    "front-camera",
+    "truedepth",
+    "expo-plugin"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@reactvision/react-viro": ">=2.57.3",
+    "react-native": ">=0.81.0"
+  },
+  "devDependencies": {
+    "@expo/config-plugins": "^9.1.7",
+    "@types/node": "^20.19.43",
+    "typescript": "^5.9.3"
+  }
+}

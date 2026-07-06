@@ -1,0 +1,23 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 34
+    namespace "com.reactvision.virofacetracking"
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 34
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    // Android front-camera AR (ARCore) lives in @reactvision/react-viro core and needs
+    // no extra dependency here — there is no Play Store TrueDepth restriction. This module
+    // exists for API symmetry with iOS and to report availability.
+    compileOnly 'com.facebook.react:react-android:+'
+}
