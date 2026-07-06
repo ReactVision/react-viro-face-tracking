@@ -1,52 +1,84 @@
-# @reactvision/react-viro-face-tracking
+<p align="center" style="background-colour: #CCCCCC;">
+  <a href="https://www.reactvision.xyz/">
+    <img src="https://avatars.githubusercontent.com/u/74572641?s=200&v=4" alt="ReactVision logo" width="120px" height="120px">
+  </a>
+</p>
 
-Front-camera (ARKit face-tracking) AR provider for [`@reactvision/react-viro`](https://www.npmjs.com/package/@reactvision/react-viro).
+<p align="center">
+  <a href="https://www.npmjs.com/package/@reactvision/react-viro-face-tracking">
+    <img src="https://img.shields.io/npm/v/@reactvision/react-viro-face-tracking" alt="npm version">
+  </a>
+  <a href="https://www.npmjs.com/package/@reactvision/react-viro-face-tracking">
+    <img src="https://img.shields.io/npm/dm/@reactvision/react-viro-face-tracking?colour=purple" alt="downloads">
+  </a>
+  <a href="https://discord.gg/yqqEGUjK">
+    <img src="https://img.shields.io/discord/774471080713781259?label=Discord" alt="Discord">
+  </a>
+</p>
 
-## Why this package exists
+# ViroReact Face Tracking, By ReactVision
 
-ARKit exposes the front camera **only** through `ARFaceTrackingConfiguration`, which uses the **TrueDepth** camera. Apple's App Store review (Guideline **2.5.1**) statically scans your binary for that API and rejects apps that include it without a matching, declared feature.
+Front-camera (ARKit face-tracking) AR provider for [ViroReact](https://github.com/ReactVision/viro). This package supplies the front-camera AR configuration behind the [`frontCameraEnabled`](https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md) prop on `ViroARSceneNavigator`. It is the **only** place in the ViroReact ecosystem that references the ARKit face-tracking / **TrueDepth** API, so the core `@reactvision/react-viro` binary stays free of it — and apps that only use the rear camera (image markers, world tracking, plane detection) pass App Store review **Guideline 2.5.1** with zero configuration. Install this package only when you actually need front-camera AR.
 
-So the front-camera AR path is **not** in the core `@reactvision/react-viro` binary. Core stays free of the TrueDepth API, and apps that only use the rear camera (image markers, world tracking, plane detection) pass review with **zero configuration**.
+MIT licensed and free forever.
 
-If you actually need front-camera **face tracking**, install this package. It is the *only* place that references `ARFaceTrackingConfiguration`, and its config plugin declares the TrueDepth usage Apple expects.
+> **Requires [`@reactvision/react-viro`](https://www.npmjs.com/package/@reactvision/react-viro) ≥ 2.57.3** (the release with the front-camera provider seam). Works with both **React Native CLI** and **Expo** projects.
 
-> **Just want a selfie *feed* (no face tracking)?** You don't need this package. Use `ViroCameraTexture` with `cameraPosition="front"` from the core package — it uses AVFoundation, never touches the TrueDepth API, and passes 2.5.1 cleanly.
+> **Just want a selfie _feed_ (no face tracking)?** You don't need this package. Use [`ViroCameraTexture`](https://github.com/ReactVision/viro/blob/main/docs/ViroCameraTexture.md) with `cameraPosition="front"` from the core package — it uses AVFoundation, never touches the TrueDepth API, and passes 2.5.1 cleanly.
 
-## Requirements
+## How it works
 
-- `@reactvision/react-viro` **>= 2.57.3** (the release with the front-camera provider seam).
-- iOS device with a TrueDepth camera (iPhone X or newer) for face tracking.
+- **iOS:** a plain, dynamically-linked framework. The `ViroFaceTracking` Objective-C++ class registers a front-camera configuration provider automatically via `+load` when the framework is loaded — no manual call needed. The provider builds an `ARFaceTrackingConfiguration` (or returns `nil` on a device without a TrueDepth camera). It reaches the core by locating ViroKit's `VROFrontCameraProvider` at runtime via `NSClassFromString`, so this framework keeps **no** build- or link-time dependency on ViroKit (the same pattern as [`react-viro-onnx`](https://github.com/ReactVision/react-viro-onnx)).
+- **Android:** no native dependency is added. Front-camera AR (ARCore Augmented Faces) already lives in core `@reactvision/react-viro` and works **without** this package — there is no Play Store TrueDepth restriction. The Android module autolinks purely for API symmetry with iOS.
 
-## Install
+Apple's 2.5.1 TrueDepth check is a **static binary scan** for `ARFaceTrackingConfiguration`. Keeping that symbol here — out of core ViroKit — is what lets rear-camera-only apps ship without declaring TrueDepth.
 
-```sh
-npm install @reactvision/react-viro-face-tracking
+## Installation
+
+```bash
+npm install @reactvision/react-viro @reactvision/react-viro-face-tracking
 ```
 
-Add it to your `app.json` **after** `@reactvision/react-viro`:
+Add **both** plugins to your `app.json` (this one *after* `@reactvision/react-viro`):
 
 ```json
 {
-  "plugins": [
-    "@reactvision/react-viro",
-    ["@reactvision/react-viro-face-tracking", {
-      "cameraUsageDescription": "We use the front camera for AR face effects."
-    }]
-  ]
+  "expo": {
+    "plugins": [
+      "@reactvision/react-viro",
+      ["@reactvision/react-viro-face-tracking", {
+        "cameraUsageDescription": "We use the front camera for AR face effects."
+      }]
+    ]
+  }
 }
 ```
 
-The `cameraUsageDescription` prop is optional (a default is provided) and is skipped if your app already declares `NSCameraUsageDescription`.
+The config plugin:
+- **iOS:** inserts `pod 'ViroReactFaceTracking'` at the end of the app target's Podfile (after the React Native / ViroKit pods, so it doesn't disturb `use_react_native!`), and injects `NSCameraUsageDescription` into `Info.plist`. The `cameraUsageDescription` option is optional (a sensible default is used) and is **not** overwritten if your app already declares one.
+- **Android:** no changes — the module autolinks.
 
-Then rebuild your native project:
+Then rebuild the native app (`npx expo prebuild --clean` then `npx expo run:ios` / `run:android`). On iOS, confirm in the logs that no `[ViroFaceTracking] … not found` error appears — the provider registers silently on success.
 
-```sh
-npx expo prebuild --clean
+### Local development (consuming this package from source)
+
+If the app installs this package from a **packed tarball** (e.g. `"@reactvision/react-viro-face-tracking": "file:../path/react-viro-face-tracking-1.0.0.tgz"`), then `node_modules` holds a *snapshot* — editing the source here does **not** reach the app until you re-pack and reinstall:
+
+```bash
+# in this package (after editing native/JS or the config plugin):
+npm run build        # regenerates dist/ + plugin/build/
+npm pack             # regenerates react-viro-face-tracking-1.0.0.tgz
+
+# in the app:
+rm -rf node_modules/@reactvision/react-viro-face-tracking
+npm install <path-to>/react-viro-face-tracking-1.0.0.tgz
 ```
+
+Symptoms of a stale tarball: a config-plugin resolution error during `expo prebuild` (no `app.plugin.js` in `node_modules`), or the front camera never activating / no `ViroFaceTracking` log lines. To skip re-packing during active dev, point the dep at the **folder** (`file:../path/react-viro-face-tracking`) instead of the tarball.
 
 ## Usage
 
-There is nothing to call from JS — the native provider registers itself automatically (`+load` on iOS, module init on Android). Once installed, enable the front camera on your scene navigator:
+There's nothing to call — the native provider registers itself when the framework is linked. Once installed, enable the front camera on your scene navigator:
 
 ```tsx
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
@@ -57,29 +89,43 @@ import { ViroARSceneNavigator } from "@reactvision/react-viro";
 />;
 ```
 
-Optional support check:
+On iOS this switches the session to the front TrueDepth camera; on Android it uses ARCore Augmented Faces. World tracking, plane detection, and LiDAR are unavailable while the front camera is active.
 
-```tsx
+## App Store review (Guideline 2.5.1)
+
+Installing this package adds the ARKit face-tracking (TrueDepth) API to your iOS binary, so Apple **will** review it under 2.5.1. Ship it only if your app has a genuine front-camera face-tracking feature, and keep `NSCameraUsageDescription` accurate (the config plugin sets it for you). If you only need a selfie feed, use `ViroCameraTexture` instead — see the note at the top.
+
+## API
+
+The provider registers itself automatically when the native pod is linked — there's nothing to call. The only exposed helper is a support probe:
+
+```ts
 import { ViroFaceTracking } from "@reactvision/react-viro-face-tracking";
 
-if (ViroFaceTracking.isSupported()) {
-  // device has a TrueDepth camera
-}
+ViroFaceTracking.isSupported();  // true only on devices with a TrueDepth camera (iOS)
 ```
 
-## How it works
+## Documentation
 
-- **Core (`ViroKit`)** exposes an Objective-C registration host, `VROFrontCameraProvider`, that forwards to `VROARSessioniOS::setFrontCameraConfigProvider`. Core never references `ARFaceTrackingConfiguration`; it runs whatever `ARConfiguration` the provider returns via `-runWithConfiguration:`.
-- **This package** locates `VROFrontCameraProvider` at runtime via `NSClassFromString` (so it needs no link-time dependency on ViroKit) and registers a block that builds an `ARFaceTrackingConfiguration`. This mirrors how [`react-viro-onnx`](https://github.com/ReactVision/react-viro-onnx) plugs an inference provider into `ViroObjectDetector`.
+- `frontCameraEnabled` reference: <https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md>
+- Selfie-feed alternative (`ViroCameraTexture`): <https://github.com/ReactVision/viro/blob/main/docs/ViroCameraTexture.md>
+- ViroReact docs: <https://viro-community.readme.io/docs/overview>
 
-## App Store note
+## Community
 
-Installing this package adds the TrueDepth API to your iOS binary. Apple **will** review it under Guideline 2.5.1. Ship it only if your app has a genuine front-camera face-tracking feature, and keep the `NSCameraUsageDescription` accurate.
+Discord is the best place to find the team and other developers building with ViroReact:
 
-## Android
+<a href="https://discord.gg/A6TaFNqwVc">
+  <img src="https://discordapp.com/api/guilds/774471080713781259/widget.png?style=banner2" />
+</a>
 
-On Android there is no Play Store TrueDepth restriction, so front-camera AR (ARCore) remains in core `@reactvision/react-viro` and works **without** this package. The Android module here exists only for API symmetry.
+## Find Out More
 
-## License
+- Website: <https://reactvision.xyz>
+- ViroReact: <https://reactvision.xyz/viro-react>
+- ReactVision Studio: <https://studio.reactvision.xyz>
+- Blog: <https://updates.reactvision.xyz>
 
-MIT © ReactVision
+---
+
+MIT licensed. © ReactVision, Inc.
