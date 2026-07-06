@@ -18,7 +18,9 @@
 
 # ViroReact Face Tracking, By ReactVision
 
-Front-camera (ARKit face-tracking) AR provider for [ViroReact](https://github.com/ReactVision/viro). This package supplies the front-camera AR configuration behind the [`frontCameraEnabled`](https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md) prop on `ViroARSceneNavigator`. It is the **only** place in the ViroReact ecosystem that references the ARKit face-tracking / **TrueDepth** API, so the core `@reactvision/react-viro` binary stays free of it — and apps that only use the rear camera (image markers, world tracking, plane detection) pass App Store review **Guideline 2.5.1** with zero configuration. Install this package only when you actually need front-camera AR.
+Front-camera (ARKit face-tracking) AR provider for [ViroReact](https://github.com/ReactVision/viro) — the optional backing for the [`frontCameraEnabled`](https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md) prop on `ViroARSceneNavigator`.
+
+This is the **only** package that references the ARKit face-tracking / **TrueDepth** API. Keeping it out of the core `@reactvision/react-viro` binary lets rear-camera apps (image markers, world tracking, plane detection) pass App Store review **Guideline 2.5.1** with zero configuration. Install it only when you actually need front-camera AR.
 
 MIT licensed and free forever.
 
