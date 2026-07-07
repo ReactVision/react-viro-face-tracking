@@ -5,6 +5,7 @@ import {
   withPlugins,
 } from "@expo/config-plugins";
 import fs from "fs";
+import { withViroFaceTrackingAppDelegate } from "./withViroFaceTrackingAppDelegate";
 
 export type ViroFaceTrackingProps = {
   /**
@@ -78,4 +79,8 @@ const withFaceTrackingPod: ConfigPlugin = (config) =>
   ]);
 
 export const withViroFaceTrackingIos: ConfigPlugin<ViroFaceTrackingProps> = (config, props = {}) =>
-  withPlugins(config, [[withCameraUsage, props], withFaceTrackingPod]);
+  withPlugins(config, [
+    [withCameraUsage, props],
+    withFaceTrackingPod,
+    withViroFaceTrackingAppDelegate,
+  ]);

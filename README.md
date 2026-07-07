@@ -30,7 +30,7 @@ MIT licensed and free forever.
 
 ## How it works
 
-- **iOS:** a plain, dynamically-linked framework. The `ViroFaceTracking` Objective-C++ class registers a front-camera configuration provider automatically via `+load` when the framework is loaded — no manual call needed. The provider builds an `ARFaceTrackingConfiguration` (or returns `nil` on a device without a TrueDepth camera). It reaches the core by locating ViroKit's `VROFrontCameraProvider` at runtime via `NSClassFromString`, so this framework keeps **no** build- or link-time dependency on ViroKit (the same pattern as [`react-viro-onnx`](https://github.com/ReactVision/react-viro-onnx)).
+- **iOS:** a plain, dynamically-linked framework. The `ViroFaceTracking` Objective-C++ class exposes `+install`, which registers a front-camera configuration provider with the core. The config plugin calls it from your `AppDelegate` (bare RN adds the one line manually — see Installation); that reference also forces the framework to load. Under `use_frameworks! :linkage => :dynamic` the framework isn't referenced by any resolved symbol otherwise, so it wouldn't load on its own. The provider builds an `ARFaceTrackingConfiguration` (or returns `nil` on a device without a TrueDepth camera) and reaches the core by locating ViroKit's `VROFrontCameraProvider` at runtime via `NSClassFromString`, so this framework keeps **no** build- or link-time dependency on ViroKit.
 - **Android:** no native dependency is added. Front-camera AR (ARCore Augmented Faces) already lives in core `@reactvision/react-viro` and works **without** this package — there is no Play Store TrueDepth restriction. The Android module autolinks purely for API symmetry with iOS.
 
 Apple's 2.5.1 TrueDepth check is a **static binary scan** for `ARFaceTrackingConfiguration`. Keeping that symbol here — out of core ViroKit — is what lets rear-camera-only apps ship without declaring TrueDepth.
@@ -61,6 +61,39 @@ The config plugin:
 - **Android:** no changes — the module autolinks.
 
 Then rebuild the native app (`npx expo prebuild --clean` then `npx expo run:ios` / `run:android`). On iOS, confirm in the logs that no `[ViroFaceTracking] … not found` error appears — the provider registers silently on success.
+
+### Bare React Native (no config plugin)
+
+Without Expo config plugins you must do on iOS what the plugin does automatically — three manual steps:
+
+1. **Add the pod** to your `ios/Podfile` app target, then `pod install`:
+   ```ruby
+   pod 'ViroReactFaceTracking', :path => '../node_modules/@reactvision/react-viro-face-tracking/ios'
+   ```
+
+2. **Declare TrueDepth usage** in `ios/<App>/Info.plist`:
+   ```xml
+   <key>NSCameraUsageDescription</key>
+   <string>Uses the front camera for AR face experiences.</string>
+   ```
+
+3. **Register the provider from your `AppDelegate`.** This is required: it forces the framework to load so the front-camera provider registers with ViroKit. Add it inside `application(_:didFinishLaunchingWithOptions:)`.
+
+   **Swift** (`AppDelegate.swift`):
+   ```swift
+   import ViroReactFaceTracking
+   // …inside didFinishLaunchingWithOptions, before `return`:
+   ViroFaceTracking.install()
+   ```
+
+   **Objective-C** (`AppDelegate.mm`):
+   ```objc
+   #import <ViroReactFaceTracking/ViroFaceTracking.h>
+   // …inside didFinishLaunchingWithOptions:
+   [ViroFaceTracking install];
+   ```
+
+Android needs no manual step — the module autolinks. (Expo apps get all of the above from the config plugin; no manual edits.)
 
 ### Local development (consuming this package from source)
 

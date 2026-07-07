@@ -13,17 +13,10 @@ Pod::Spec.new do |s|
 
   s.source_files     = '*.{h,m,mm}'
 
-  # ARKit provides ARFaceTrackingConfiguration (TrueDepth). This pod is the ONLY
-  # place in the app that references it, so the core ViroKit binary stays free of
-  # the TrueDepth API. ARKit is a system framework — nothing is vendored.
   s.frameworks       = 'ARKit', 'Foundation'
 
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'OTHER_CPLUSPLUSFLAGS'        => '$(inherited) -std=c++17',
   }
-
-  # No React or ViroReact pod dependencies — VROFrontCameraProvider (in ViroKit) is
-  # located at runtime via NSClassFromString (mirrors react-viro-onnx). React/Viro
-  # symbols are resolved from the host app.
 end
