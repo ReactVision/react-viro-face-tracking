@@ -18,7 +18,7 @@
 
 # ViroReact Face Tracking, By ReactVision
 
-Front-camera (ARKit face-tracking) AR provider for [ViroReact](https://github.com/ReactVision/viro) — the optional backing for the [`frontCameraEnabled`](https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md) prop on `ViroARSceneNavigator`.
+Front-camera (ARKit face-tracking) AR provider for [ViroReact](https://github.com/ReactVision/viro) — the optional backing for the `frontCameraEnabled` prop on `ViroARSceneNavigator`.
 
 This is the **only** package that references the ARKit face-tracking / **TrueDepth** API. Keeping it out of the core `@reactvision/react-viro` binary lets rear-camera apps (image markers, world tracking, plane detection) pass App Store review **Guideline 2.5.1** with zero configuration. Install it only when you actually need front-camera AR.
 
@@ -26,7 +26,7 @@ MIT licensed and free forever.
 
 > **Requires [`@reactvision/react-viro`](https://www.npmjs.com/package/@reactvision/react-viro) ≥ 2.57.3** (the release with the front-camera provider seam). Works with both **React Native CLI** and **Expo** projects.
 
-> **Just want a selfie _feed_ (no face tracking)?** You don't need this package. Use [`ViroCameraTexture`](https://github.com/ReactVision/viro/blob/main/docs/ViroCameraTexture.md) with `cameraPosition="front"` from the core package — it uses AVFoundation, never touches the TrueDepth API, and passes 2.5.1 cleanly.
+> **Just want a selfie _feed_ (no face tracking)?** You don't need this package. Use `ViroCameraTexture` with `cameraPosition="front"` from the core package — it uses AVFoundation, never touches the TrueDepth API, and passes 2.5.1 cleanly.
 
 ## How it works
 
@@ -142,8 +142,6 @@ ViroFaceTracking.isSupported();  // true only on devices with a TrueDepth camera
 
 ## Documentation
 
-- `frontCameraEnabled` reference: <https://github.com/ReactVision/viro/blob/main/docs/PLATFORM_EXTENSIONS.md>
-- Selfie-feed alternative (`ViroCameraTexture`): <https://github.com/ReactVision/viro/blob/main/docs/ViroCameraTexture.md>
 - ViroReact docs: <https://viro-community.readme.io/docs/overview>
 
 ## Community
