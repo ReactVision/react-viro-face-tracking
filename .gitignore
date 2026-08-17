@@ -1,3 +1,5 @@
 node_modules/
 dist/
 plugin/build/
+/android/build
+.DS_Store
