@@ -3,3 +3,6 @@ dist/
 plugin/build/
 /android/build
 .DS_Store
+
+# npm pack output
+*.tgz
