@@ -11,7 +11,7 @@
   <a href="https://www.npmjs.com/package/@reactvision/react-viro-face-tracking">
     <img src="https://img.shields.io/npm/dm/@reactvision/react-viro-face-tracking?colour=purple" alt="downloads">
   </a>
-  <a href="https://discord.gg/yqqEGUjK">
+  <a href="https://discord.gg/A6TaFNqwVc">
     <img src="https://img.shields.io/discord/774471080713781259?label=Discord" alt="Discord">
   </a>
 </p>
@@ -57,7 +57,7 @@ Add **both** plugins to your `app.json` (this one *after* `@reactvision/react-vi
 ```
 
 The config plugin:
-- **iOS:** inserts `pod 'ViroReactFaceTracking'` at the end of the app target's Podfile (after the React Native / ViroKit pods, so it doesn't disturb `use_react_native!`), and injects `NSCameraUsageDescription` into `Info.plist`. The `cameraUsageDescription` option is optional (a sensible default is used) and is **not** overwritten if your app already declares one.
+- **iOS:** inserts `pod 'ViroReactFaceTracking'` at the end of the app target's Podfile (after the React Native / ViroKit pods, so it doesn't disturb `use_react_native!`), injects `NSCameraUsageDescription` into `Info.plist`, and adds `import ViroReactFaceTracking` + `ViroFaceTracking.install()` to a Swift `AppDelegate` (an Objective-C `AppDelegate` gets a warning during `expo prebuild` instead — add `[ViroFaceTracking install];` manually, as in the bare-RN steps below). The `cameraUsageDescription` option is optional (a sensible default is used) and is **not** overwritten if your app already declares one.
 - **Android:** no changes — the module autolinks.
 
 Then rebuild the native app (`npx expo prebuild --clean` then `npx expo run:ios` / `run:android`). On iOS, confirm in the logs that no `[ViroFaceTracking] … not found` error appears — the provider registers silently on success.
@@ -97,23 +97,23 @@ Android needs no manual step — the module autolinks. (Expo apps get all of the
 
 ### Local development (consuming this package from source)
 
-If the app installs this package from a **packed tarball** (e.g. `"@reactvision/react-viro-face-tracking": "file:../path/react-viro-face-tracking-1.0.0.tgz"`), then `node_modules` holds a *snapshot* — editing the source here does **not** reach the app until you re-pack and reinstall:
+If the app installs this package from a **packed tarball** (e.g. `"@reactvision/react-viro-face-tracking": "file:../path/reactvision-react-viro-face-tracking-1.0.0.tgz"`), then `node_modules` holds a *snapshot* — editing the source here does **not** reach the app until you re-pack and reinstall:
 
 ```bash
 # in this package (after editing native/JS or the config plugin):
 npm run build        # regenerates dist/ + plugin/build/
-npm pack             # regenerates react-viro-face-tracking-1.0.0.tgz
+npm pack             # regenerates reactvision-react-viro-face-tracking-1.0.0.tgz
 
 # in the app:
 rm -rf node_modules/@reactvision/react-viro-face-tracking
-npm install <path-to>/react-viro-face-tracking-1.0.0.tgz
+npm install <path-to>/reactvision-react-viro-face-tracking-1.0.0.tgz
 ```
 
 Symptoms of a stale tarball: a config-plugin resolution error during `expo prebuild` (no `app.plugin.js` in `node_modules`), or the front camera never activating / no `ViroFaceTracking` log lines. To skip re-packing during active dev, point the dep at the **folder** (`file:../path/react-viro-face-tracking`) instead of the tarball.
 
 ## Usage
 
-There's nothing to call — the native provider registers itself when the framework is linked. Once installed, enable the front camera on your scene navigator:
+There's nothing to call from JS — the `ViroFaceTracking.install()` call in your `AppDelegate` (added by the config plugin, or by hand in bare RN) registers the provider. Once installed, enable the front camera on your scene navigator:
 
 ```tsx
 import { ViroARSceneNavigator } from "@reactvision/react-viro";
@@ -132,12 +132,12 @@ Installing this package adds the ARKit face-tracking (TrueDepth) API to your iOS
 
 ## API
 
-The provider registers itself automatically when the native pod is linked — there's nothing to call. The only exposed helper is a support probe:
+There's nothing to call from JS — registration happens through the `AppDelegate` `install()` call described above. The only exposed helper is a support probe:
 
 ```ts
 import { ViroFaceTracking } from "@reactvision/react-viro-face-tracking";
 
-ViroFaceTracking.isSupported();  // true only on devices with a TrueDepth camera (iOS)
+ViroFaceTracking.isSupported();  // Android: always true. iOS: currently always false — the native +isSupported isn't bridged to JS
 ```
 
 ## Documentation
