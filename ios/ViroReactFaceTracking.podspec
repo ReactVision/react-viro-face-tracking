@@ -15,6 +15,10 @@ Pod::Spec.new do |s|
 
   s.frameworks       = 'ARKit', 'Foundation'
 
+  # ViroFaceTrackingModule.mm is a React Native module, so it needs the bridge headers.
+  # ViroFaceTracking.mm itself still links nothing: it resolves ViroKit at runtime.
+  s.dependency 'React-Core'
+
   s.pod_target_xcconfig = {
     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'OTHER_CPLUSPLUSFLAGS'        => '$(inherited) -std=c++17',
