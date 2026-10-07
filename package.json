@@ -1,6 +1,6 @@
 {
   "name": "@reactvision/react-viro-face-tracking",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Front-camera (ARKit face-tracking) AR provider for @reactvision/react-viro. Keeps the TrueDepth API out of the core binary; opt in only when you need front-camera AR.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,11 +23,13 @@
     "plugin/build",
     "ios/ViroFaceTracking.h",
     "ios/ViroFaceTracking.mm",
+    "ios/ViroFaceTrackingModule.mm",
     "ios/ViroReactFaceTracking.podspec",
     "android/build.gradle",
     "android/src",
     "app.plugin.js",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "expo": {
